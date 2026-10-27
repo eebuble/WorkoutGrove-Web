@@ -1,5 +1,5 @@
 import {initializeApp,getApps} from 'firebase/app';
-import {getAuth,onAuthStateChanged,GoogleAuthProvider,signInWithPopup,signInWithRedirect,signOut,User} from 'firebase/auth';
+import {getAuth,onAuthStateChanged,GoogleAuthProvider,signInWithPopup,signOut,User} from 'firebase/auth';
 import {doc,getDoc,getFirestore,runTransaction} from 'firebase/firestore';
 import type {Database} from './model';
 const config={apiKey:import.meta.env.VITE_FIREBASE_API_KEY,authDomain:import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,projectId:import.meta.env.VITE_FIREBASE_PROJECT_ID,appId:import.meta.env.VITE_FIREBASE_APP_ID};
@@ -14,7 +14,18 @@ export async function checkAllowed(user:User):Promise<boolean>{
  return snap.exists()&&snap.data().enabled===true;
 }
 export function subscribeAuth(callback:(user:User|null)=>void){return auth?onAuthStateChanged(auth,callback):()=>{};}
-export async function login(){if(!auth)throw Error('Firebase 환경변수가 비어 있습니다.');const provider=new GoogleAuthProvider();try{await signInWithPopup(auth,provider);}catch(e:any){if(e?.code==='auth/popup-blocked')await signInWithRedirect(auth,provider);else throw e;}}
+export async function login(){
+ if(!auth)throw Error('Firebase 환경변수가 비어 있습니다.');
+ const provider=new GoogleAuthProvider();
+ try{
+  await signInWithPopup(auth,provider);
+ }catch(e:unknown){
+  if(typeof e==='object'&&e!==null&&'code' in e&&e.code==='auth/popup-blocked'){
+   throw Error('Google 로그인 팝업이 차단되었습니다. 브라우저에서 팝업을 허용한 뒤 다시 시도해 주세요.');
+  }
+  throw e;
+ }
+}
 export async function logout(){if(auth)await signOut(auth);}
 /** Stored alongside data; not part of the user-owned workout database. */
 export type CloudSnapshot={data:Database;revision:number};
@@ -57,4 +68,3 @@ export async function replaceCloud(userId:string,data:Database):Promise<number>{
   return rev+1;
  });
 }
-

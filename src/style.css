@@ -103,3 +103,22 @@
 .set-type-toggle button.chosen{border-color:var(--accent,#368af0);background:color-mix(in srgb,var(--accent,#368af0) 20%,transparent)}
 
 .auth-gate{min-height:100dvh;display:grid;place-items:center;padding:22px;background:var(--bg,#10131c);color:var(--text,#f5f6fb)}.auth-card{max-width:420px;width:100%;border:1px solid rgba(128,128,128,.35);border-radius:20px;padding:26px;background:var(--surface,#1b2230)}.auth-brand{display:flex;align-items:center;gap:12px}.auth-brand h1{margin:0;font-size:24px}.auth-card p{line-height:1.6}.auth-card button{margin-top:10px}.auth-card .error{color:#f87171}
+
+/* Workout Grove 0.4.3: exercise picker action fixed above bottom navigation */
+.screen:has(> .choose-footer){padding-bottom:calc(185px + env(safe-area-inset-bottom));}
+.screen > .choose-footer{
+  position:fixed;
+  bottom:calc(61px + env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  width:100%;
+  max-width:540px;
+  box-sizing:border-box;
+  background:var(--bg);
+  padding:10px 13px 12px;
+  border-top:1px solid var(--line);
+  z-index:8;
+  box-shadow:0 -8px 20px rgba(0,0,0,.10);
+}
+.screen > .choose-footer .selected-chips:empty{display:none;}
+.screen > .choose-footer .selected-chips{max-height:45px;overflow-x:auto;overflow-y:hidden;}

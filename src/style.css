@@ -1,163 +1,105 @@
-export type SetRow={id:string;type:'W'|'N';weight:number;reps:number;rest:number;durationSeconds?:number;done:boolean};
-export type Exercise={id:string;name:string;part:string;tool:string;method:string;custom?:boolean;favorite?:boolean};
-export type Workout={id:string;exerciseId:string;sets:SetRow[];note?:string;cardioMode?:'시간'|'횟수'};
-export type Session={id:string;title:string;startedAt?:string;duration:number;workouts:Workout[]};
-export type Routine={id:string;name:string;color:string;workouts:Workout[]};
-export type BodyEntry={date:string;weight?:number;muscle?:number;fat?:number;memo?:string};
-export type Preferences={theme:'dark'|'light'|'system';accent:string;weightUnit:'kg'|'lb';rest:number;scale:number;weightStep?:number;exerciseWeightSteps?:Record<string,number>};
-export type Database={days:Record<string,Session[]>;exercises:Exercise[];routines:Routine[];body:BodyEntry[];preferences:Preferences;dashboard:string[]};
-export const newId=()=>typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `wg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,12)}`;
-export const dateKey=(date:Date)=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-export const today=()=>dateKey(new Date());
-export const initialExercises:Exercise[]=[
- {id:'walk',name:'걷기',part:'유산소',tool:'없음',method:'시간'},
- {id:'run',name:'달리기',part:'유산소',tool:'없음',method:'시간'},
- {id:'deadlift',name:'데드리프트: 바벨, 하체',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'squat',name:'스쿼트: 바벨, 하체',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'bench',name:'벤치 프레스: 바벨, 가슴',part:'가슴',tool:'바벨',method:'무게 × 횟수'},
- {id:'ohp',name:'숄더 프레스: 스탠딩, 바벨',part:'어깨',tool:'바벨',method:'무게 × 횟수'},
- {id:'row',name:'시티드 로우: 케이블, 등',part:'등',tool:'케이블',method:'무게 × 횟수'},
- {id:'pullup',name:'풀업',part:'등',tool:'맨몸',method:'횟수'},
- {id:'plank',name:'플랭크',part:'복부',tool:'맨몸',method:'시간'},
- {id:'curl',name:'바이셉 컬: 덤벨',part:'이두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'triceps',name:'트라이셉스 푸시다운',part:'삼두',tool:'케이블',method:'무게 × 횟수'},
- {id:'lunge',name:'런지: 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'deadbug',name:'데드버그',part:'복부',tool:'맨몸',method:'횟수'}
-,
- {id:'jump-rope',name:'줄넘기',part:'유산소',tool:'기타',method:'횟수 / 시간'},
- {id:'stepper',name:'스테퍼',part:'유산소',tool:'머신',method:'횟수 / 시간'},
- {id:'mountain-climber',name:'마운틴 클라이머',part:'유산소',tool:'맨몸',method:'시간'},
- {id:'stairs',name:'계단 오르기',part:'유산소',tool:'기타',method:'시간'}
-];
+:root{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR','Apple SD Gothic Neo',sans-serif;color-scheme:dark;--accent:#338cff;--bg:#111216;--surface:#202126;--surface2:#2a2b31;--line:#37383e;--text:#ececf1;--muted:#9698a3}*{box-sizing:border-box}body{margin:0;background:#0b0c10;color:var(--text)}button,input,select,textarea{font:inherit}button{border:0;background:none;color:inherit;cursor:pointer}button:disabled{opacity:.4;cursor:default}input,select,textarea{color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:7px;padding:11px;min-width:0}input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}input[type=range]{accent-color:var(--accent)}:root[data-theme=light]{color-scheme:light;--bg:#f6f7fb;--surface:#fff;--surface2:#f0f1f5;--line:#dadddf;--text:#1f2129;--muted:#6c707b}.app{min-height:100dvh;background:var(--bg)}.phone-frame{min-height:100dvh;max-width:540px;margin:auto;background:var(--bg);position:relative;box-shadow:0 0 32px #0001}.header{height:calc(58px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0;display:flex;align-items:center;gap:10px;background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.header-title{font-size:16px}.icon-btn{width:32px;height:35px;display:inline-flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}.icon-btn svg{width:20px;height:20px}.month-title{font-weight:700;font-size:18px;display:flex;align-items:center;gap:8px}.flex-grow{flex:1}.flex-between{display:flex;align-items:center;justify-content:space-between;gap:10px}.full{width:100%}.screen{min-height:calc(100dvh - 125px);padding:12px 13px calc(100px + env(safe-area-inset-bottom));position:relative}.calendar-screen{padding:0 0 90px}.month-nav{height:42px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);letter-spacing:1px}.month-nav button{width:35px}.month-nav svg{width:18px}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-left:1px solid var(--line)}.day-cell{height:clamp(67px,18vw,96px);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 2px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;overflow:hidden}.day-cell.other{opacity:.32}.day-cell.selected{background:color-mix(in srgb,var(--accent) 15%,transparent)}.day-number{font-size:13px;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}.day-cell.today .day-number{background:var(--accent);color:white}.day-min,.day-set,.day-volume{font-size:9px;white-space:nowrap}.day-volume{color:var(--accent);font-weight:700}.date-summary{padding:16px}.summary-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.summary-heading b{font-size:16px}.outline-btn{color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:8px 14px}.summary-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;text-align:center;margin:8px 0 18px}.summary-stats>div{display:flex;flex-direction:column;gap:7px}.summary-stats small,.stat-grid small{color:var(--muted);font-size:11px}.summary-stats b{font-size:16px}.summary-stats input{font-size:16px;font-weight:700;text-align:center;padding:5px;width:100%}.primary{background:var(--accent);border-radius:7px;color:#fff;padding:12px;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:700}.bottom-nav{height:calc(61px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:space-around;position:fixed;bottom:0;left:0;right:0;max-width:540px;margin:auto;z-index:9}.bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:10px}.bottom-nav button.active{color:var(--accent)}.bottom-nav svg{width:22px;height:22px}.date-controls{display:flex;justify-content:space-around;align-items:center;padding:5px 0 13px;border-bottom:1px solid var(--line);gap:9px}.date-controls button{padding:6px 10px;color:var(--accent)}.toolbar{display:flex;justify-content:flex-end;gap:12px;padding:12px 0}.toolbar button{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}.session-summary,.panel{padding:14px;border-radius:10px;background:var(--surface);margin:5px 0 14px}.session-name{background:transparent;border:0;font-weight:700;font-size:16px;padding:5px;width:80%}.stack{display:flex;flex-direction:column;gap:12px}.workout-card{border-radius:9px;overflow:hidden;background:var(--surface);border:1px solid var(--line)}.workout-top{display:flex;gap:7px;align-items:center;padding:10px}.workout-symbol,.exercise-icon{width:43px;height:43px;border-radius:7px;background:var(--surface2);display:grid;place-items:center;color:var(--muted);flex-shrink:0}.workout-name{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}.workout-name b{font-size:12px;line-height:1.4}.workout-name small,.exercise-choice small,.routine-list small{color:var(--muted);font-size:11px}.workout-top .icon-btn{width:21px}.reveal{padding:9px;background:var(--surface2);color:var(--accent);display:flex;justify-content:center;gap:5px;align-items:center;font-size:12px}.sets{padding:12px 7px}.set-head,.set-row{display:grid;grid-template-columns:36px 1fr 1fr 1fr 31px 16px;gap:4px;align-items:center}.set-head{color:var(--muted);text-align:center;font-size:9px;margin-bottom:5px}.set-row{margin:6px 0}.set-row input{width:100%;padding:8px 2px;text-align:center;font-size:12px}.set-number{background:var(--surface2);border-radius:6px;height:35px}.completed,.uncompleted{height:32px;border-radius:50%;display:grid;place-items:center}.completed{background:var(--accent);color:#fff}.uncompleted{background:var(--surface2);color:var(--muted)}.set-remove{padding:0;color:var(--muted)}.set-actions,.action-row,.settings-actions{display:flex;justify-content:space-around;gap:8px;margin:12px 0}.set-actions button,.action-row button,.settings-actions button{flex:1;display:flex;justify-content:center;align-items:center;gap:4px;padding:9px 5px;background:var(--surface2);border-radius:7px;font-size:12px}.set-actions+.sets{margin-top:8px}.sets textarea{width:100%;resize:vertical;min-height:50px}.slot-tabs{display:flex;justify-content:space-around;margin:16px 0 8px;border-top:1px solid var(--line)}.slot-tabs button{padding:13px 20px;color:var(--muted)}.slot-tabs button.active{color:var(--accent);border-top:2px solid var(--accent)}.floating{position:fixed;bottom:calc(82px + env(safe-area-inset-bottom));right:max(20px,calc((100vw - 540px)/2 + 20px));width:55px;height:55px;border-radius:50%;background:var(--accent);display:grid;place-items:center;box-shadow:0 4px 16px #0004;color:#fff;z-index:3}.empty{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;color:var(--muted);padding:55px 12px;text-align:center}.empty svg{width:36px;height:36px;opacity:.5}.empty p{font-size:14px}.empty small{font-size:11px}.search-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:8px;padding:5px 8px}.search-bar input{border:0;background:transparent;flex:1}.search-bar button{color:var(--accent)}.chips{display:flex;gap:7px;overflow-x:auto;padding:12px 0;scrollbar-width:none}.chips button{white-space:nowrap;padding:8px 13px;background:var(--surface);border-radius:18px;color:var(--muted);font-size:12px}.chips .on{background:var(--accent);color:white}.section-title{font-size:14px;font-weight:700;margin:14px 2px}.section-title small{font-size:11px;color:var(--muted)}.exercise-results{display:flex;flex-direction:column}.exercise-choice{display:flex;text-align:left;align-items:center;gap:11px;padding:9px 5px;border-bottom:1px solid var(--line)}.exercise-choice span:not(.flex-grow):not(.exercise-icon){display:flex;flex-direction:column;gap:5px}.exercise-choice b{font-size:12px}.exercise-choice.picked{background:color-mix(in srgb,var(--accent) 13%,transparent)}.choose-footer{position:sticky;bottom:55px;background:var(--bg);padding:8px 0 12px;border-top:1px solid var(--line);z-index:2}.selected-chips{display:flex;gap:6px;overflow:auto;padding-bottom:7px}.selected-chips button{white-space:nowrap;border-radius:5px;padding:8px;background:var(--surface2);font-size:10px}.form-screen{display:flex;flex-direction:column;gap:15px}.form-screen label{display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}.form-screen label input,.form-screen label select{width:100%}.form-screen h3{font-size:15px;border-bottom:1px solid var(--line);padding-bottom:11px}.image-placeholders{display:flex;justify-content:center;gap:15px}.image-placeholders>div{height:92px;width:92px;background:var(--surface);border:1px dashed var(--line);border-radius:10px;display:grid;place-items:center;color:var(--muted)}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}.list-action{display:flex;align-items:center;gap:12px;padding:15px 9px;color:var(--accent);width:100%;border-bottom:1px solid var(--line)}.routine-list{display:flex;align-items:center;padding:13px 5px;gap:10px;border-bottom:1px solid var(--line)}.routine-list span:not(.color-dot):not(.flex-grow){display:flex;flex-direction:column;gap:5px}.routine-list button{font-size:12px;color:var(--accent)}.color-dot{width:25px;height:25px;border-radius:50%}.template-top{align-items:end}.template-top input[type=color]{height:42px;padding:3px}.color-palette{display:flex;flex-wrap:wrap;gap:9px}.color-palette button{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:white}.subheading{font-size:15px}.mini-chart{width:100%;height:135px}.panel p{font-size:12px;color:var(--muted)}.panel small{font-size:11px;color:var(--muted)}.week-dots{display:flex;justify-content:space-around;padding:18px 0}.week-dots button{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px}.week-dots span:last-child{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--surface2)}.week-dots .worked{background:var(--accent)!important;color:white}.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:9px;overflow:hidden}.stat-grid div{background:var(--surface);padding:17px 7px;text-align:center;display:flex;flex-direction:column;gap:10px}.stat-grid b{font-size:17px}.part-bars>div{display:grid;grid-template-columns:43px 1fr 45px;gap:10px;align-items:center;margin:14px 0;font-size:11px}.part-bars b{text-align:right}.bar-track{height:11px;background:var(--surface2);border-radius:7px;overflow:hidden}.bar-track div{height:100%;background:var(--accent)}.body-card{display:grid;grid-template-columns:1fr 1fr 25px;gap:6px;width:100%;padding:17px 12px;text-align:left;border-bottom:1px solid var(--line);align-items:center}.body-card small{color:var(--muted)}.body-card b{font-size:20px}.body-card span{grid-column:1/3;color:var(--muted);font-size:11px}.body-card svg{grid-column:3;grid-row:1/3}.stepper{display:flex;gap:7px}.stepper button{flex:1;background:var(--surface2);padding:10px 0;border-radius:6px;font-size:12px}.muted{color:var(--muted)}.error{color:#ff7777;font-size:12px}.scrim{position:fixed;inset:0;background:#0009;z-index:15;width:100%}.drawer{position:fixed;z-index:16;left:0;top:0;bottom:0;width:min(83vw,325px);background:var(--surface);box-shadow:5px 0 24px #0006;padding-top:env(safe-area-inset-top);display:flex;flex-direction:column}.drawer-header{padding:22px 15px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--line)}.brand-mark{width:45px;height:45px;border-radius:10px;background:var(--accent);display:grid;place-items:center;color:white}.drawer-header div:nth-child(2){display:flex;flex:1;flex-direction:column;gap:5px}.drawer-header small,.drawer-footer{color:var(--muted);font-size:11px}.drawer>button{display:flex;align-items:center;gap:15px;padding:17px 20px;width:100%;border-bottom:1px solid var(--line);font-size:14px}.drawer>button svg:last-child{margin-left:auto}.drawer-footer{margin-top:auto;padding:20px;line-height:2;border-top:1px solid var(--line)}@media(min-width:620px){.phone-frame{border:1px solid var(--line)}.bottom-nav{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
 
-export const catalogExercises:Exercise[]=[
- {id:'catalog-a3045dce203e',name:'벤치 프레스 · 바벨',part:'가슴',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-08e5cc0e147f',name:'벤치 프레스 · 덤벨',part:'가슴',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-893c17d405d2',name:'벤치 프레스 · 머신',part:'가슴',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-82c4a9987375',name:'인클라인 벤치 프레스 · 바벨',part:'가슴',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-15c5a728df20',name:'인클라인 벤치 프레스 · 덤벨',part:'가슴',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-62e114971c71',name:'인클라인 벤치 프레스 · 머신',part:'가슴',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-0bb6baf6fb4b',name:'디클라인 벤치 프레스 · 바벨',part:'가슴',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-f0683346283a',name:'디클라인 벤치 프레스 · 덤벨',part:'가슴',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-2c2c3f8e7794',name:'체스트 프레스 · 머신',part:'가슴',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-3341d29ff291',name:'체스트 플라이 · 덤벨',part:'가슴',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-a3cc84cdd896',name:'체스트 플라이 · 케이블',part:'가슴',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-328731359967',name:'체스트 플라이 · 머신',part:'가슴',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-792a8a46f0dd',name:'푸시업 · 맨몸',part:'가슴',tool:'맨몸',method:'횟수'},
- {id:'catalog-60ad5e01b39a',name:'딥스 · 맨몸',part:'가슴',tool:'맨몸',method:'횟수'},
- {id:'catalog-88945fb6d7fd',name:'랫 풀다운 · 케이블',part:'등',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-7bb7bddbcdb2',name:'랫 풀다운 · 머신',part:'등',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-02a7fc93afc6',name:'시티드 로우 · 케이블',part:'등',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-30f3c1c7c6ef',name:'시티드 로우 · 머신',part:'등',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-976f6f1bb670',name:'바벨 로우 · 바벨',part:'등',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-3e4191f22f96',name:'원암 로우 · 덤벨',part:'등',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-2f7027ce56a7',name:'원암 로우 · 케이블',part:'등',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-fbad11dc5a17',name:'티바 로우 · 바벨',part:'등',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-70d834bce4a9',name:'티바 로우 · 머신',part:'등',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-ee6200589041',name:'풀업 · 맨몸',part:'등',tool:'맨몸',method:'횟수'},
- {id:'catalog-7cd1eb9e2ab9',name:'친업 · 맨몸',part:'등',tool:'맨몸',method:'횟수'},
- {id:'catalog-7ebe18bd69b6',name:'페이스 풀 · 케이블',part:'등',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-46597b97a3e0',name:'백 익스텐션 · 맨몸',part:'등',tool:'맨몸',method:'횟수'},
- {id:'catalog-b86f5c0054a4',name:'백 익스텐션 · 머신',part:'등',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-1920fcaa469d',name:'스쿼트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-6c78d8927557',name:'스쿼트 · 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-3d38f79224e8',name:'스쿼트 · 맨몸',part:'하체',tool:'맨몸',method:'횟수'},
- {id:'catalog-2507616c05fa',name:'스쿼트 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-2536fd3227f0',name:'프론트 스쿼트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-d233303c4fd4',name:'데드리프트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-dd9c20d323d1',name:'데드리프트 · 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-3b4e32917230',name:'루마니안 데드리프트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-47bcbc3ea12f',name:'루마니안 데드리프트 · 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-cdbaf5bf57c6',name:'스모 데드리프트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-92c5b7222ae2',name:'스티프 레그 데드리프트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-4350bde3d439',name:'스티프 레그 데드리프트 · 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-e0e4561030f2',name:'런지 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-b244c56902c4',name:'런지 · 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-2d1cb3886d07',name:'런지 · 맨몸',part:'하체',tool:'맨몸',method:'횟수'},
- {id:'catalog-215cff5250ac',name:'레그 프레스 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-c7516d3e6062',name:'레그 익스텐션 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-5197d7c3e6eb',name:'레그 컬 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-864cd652d389',name:'힙 쓰러스트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-e0a783e6d55a',name:'힙 쓰러스트 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-bfd1b1df3806',name:'힙 쓰러스트 · 맨몸',part:'하체',tool:'맨몸',method:'횟수'},
- {id:'catalog-23635588a8d5',name:'불가리안 스플릿 스쿼트 · 바벨',part:'하체',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-9ee335efbbec',name:'불가리안 스플릿 스쿼트 · 덤벨',part:'하체',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-2a33f80d331a',name:'불가리안 스플릿 스쿼트 · 맨몸',part:'하체',tool:'맨몸',method:'횟수'},
- {id:'catalog-1fa5da4bf54c',name:'힙 어브덕션 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-42aced3ece9f',name:'힙 어덕션 · 머신',part:'하체',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-00d804b512e6',name:'숄더 프레스 · 바벨',part:'어깨',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-9f058e2a52af',name:'숄더 프레스 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-619e11dc2a43',name:'숄더 프레스 · 머신',part:'어깨',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-5e95d06f6973',name:'오버헤드 프레스 · 바벨',part:'어깨',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-a05119a79343',name:'오버헤드 프레스 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-72a563b1d020',name:'사이드 레터럴 레이즈 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-47386ea1ecf3',name:'사이드 레터럴 레이즈 · 케이블',part:'어깨',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-acb46f461aa8',name:'사이드 레터럴 레이즈 · 머신',part:'어깨',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-cf5ed8ef76ae',name:'프론트 레이즈 · 바벨',part:'어깨',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-696168ddaeed',name:'프론트 레이즈 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-b7c274fe1451',name:'프론트 레이즈 · 케이블',part:'어깨',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-62acf5c27ede',name:'리어 델트 플라이 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-384cfbb125ae',name:'리어 델트 플라이 · 케이블',part:'어깨',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-4792339d44da',name:'리어 델트 플라이 · 머신',part:'어깨',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-a39f6e774398',name:'업라이트 로우 · 바벨',part:'어깨',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-5a8a192eb262',name:'업라이트 로우 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-b3c2456edbef',name:'업라이트 로우 · 케이블',part:'어깨',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-471c7b9e4c41',name:'아놀드 프레스 · 덤벨',part:'어깨',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-1d38bdbb00ae',name:'바이셉 컬 · 바벨',part:'이두',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-6a7747818637',name:'바이셉 컬 · 덤벨',part:'이두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-6484e9ba9016',name:'바이셉 컬 · 케이블',part:'이두',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-d30fac19c831',name:'해머 컬 · 덤벨',part:'이두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-9a994204693e',name:'해머 컬 · 케이블',part:'이두',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-af4e4765de19',name:'프리처 컬 · 바벨',part:'이두',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-b847fc85896a',name:'프리처 컬 · 덤벨',part:'이두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-85a5305a2425',name:'프리처 컬 · 머신',part:'이두',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-4b0a2377f7db',name:'인클라인 덤벨 컬 · 덤벨',part:'이두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-fd8a0bd7883a',name:'컨센트레이션 컬 · 덤벨',part:'이두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-5243ae211b05',name:'트라이셉스 푸시다운 · 케이블',part:'삼두',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-f0725df1fa54',name:'오버헤드 트라이셉스 익스텐션 · 덤벨',part:'삼두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-4369117aad63',name:'오버헤드 트라이셉스 익스텐션 · 케이블',part:'삼두',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-59d81c8050b1',name:'스컬 크러셔 · 바벨',part:'삼두',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-ede276f66b3c',name:'스컬 크러셔 · 덤벨',part:'삼두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-13c8d4f569cc',name:'클로즈 그립 벤치 프레스 · 바벨',part:'삼두',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-eb4881b21ed0',name:'킥백 · 덤벨',part:'삼두',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-aef10571db2c',name:'킥백 · 케이블',part:'삼두',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-669292e1f735',name:'벤치 딥스 · 맨몸',part:'삼두',tool:'맨몸',method:'횟수'},
- {id:'catalog-ed94bc49aef1',name:'크런치 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-46b526f17581',name:'크런치 · 케이블',part:'복부',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-027dbe31fe3e',name:'크런치 · 머신',part:'복부',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-b65bf020c468',name:'레그 레이즈 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-94ef5dd3dde6',name:'행잉 레그 레이즈 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-660b232d5cde',name:'플랭크 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-40030ac6ed88',name:'사이드 플랭크 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-c942b6906528',name:'데드버그 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-6c57f9502637',name:'러시안 트위스트 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-90c9727a7f43',name:'러시안 트위스트 · 덤벨',part:'복부',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-8d6e2ca208de',name:'케이블 크런치 · 케이블',part:'복부',tool:'케이블',method:'무게 × 횟수'},
- {id:'catalog-9b02e9cfd194',name:'싯업 · 맨몸',part:'복부',tool:'맨몸',method:'횟수'},
- {id:'catalog-58d2cd9bde9d',name:'카프 레이즈 · 맨몸',part:'종아리',tool:'맨몸',method:'횟수'},
- {id:'catalog-20fec303d65b',name:'카프 레이즈 · 덤벨',part:'종아리',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-870df7c46515',name:'카프 레이즈 · 머신',part:'종아리',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-f4fa5df9ce95',name:'시티드 카프 레이즈 · 머신',part:'종아리',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-db352dd79459',name:'슈러그 · 바벨',part:'승모근',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-529d7afdd464',name:'슈러그 · 덤벨',part:'승모근',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-e6d0914e34e4',name:'슈러그 · 머신',part:'승모근',tool:'머신',method:'무게 × 횟수'},
- {id:'catalog-7e33df1abcda',name:'리스트 컬 · 바벨',part:'전완',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-15a998de202f',name:'리스트 컬 · 덤벨',part:'전완',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-d68943b6e346',name:'리버스 리스트 컬 · 바벨',part:'전완',tool:'바벨',method:'무게 × 횟수'},
- {id:'catalog-d27b2d6ba8be',name:'리버스 리스트 컬 · 덤벨',part:'전완',tool:'덤벨',method:'무게 × 횟수'},
- {id:'catalog-520eb7753360',name:'걷기 · 기타',part:'유산소',tool:'기타',method:'시간'},
- {id:'catalog-7d7a8be4bec2',name:'달리기 · 기타',part:'유산소',tool:'기타',method:'시간'},
- {id:'catalog-9a542cd06c64',name:'줄넘기 · 기타',part:'유산소',tool:'기타',method:'횟수 / 시간'},
- {id:'catalog-7d32be1b4724',name:'스테퍼 · 머신',part:'유산소',tool:'머신',method:'횟수 / 시간'},
- {id:'catalog-d0ff18720053',name:'마운틴 클라이머 · 맨몸',part:'유산소',tool:'맨몸',method:'시간'},
- {id:'catalog-9b686e219081',name:'계단 오르기 · 기타',part:'유산소',tool:'기타',method:'시간'},
- {id:'catalog-27118f100e86',name:'사이클 · 머신',part:'유산소',tool:'머신',method:'시간'},
- {id:'catalog-43a46861ddfb',name:'로잉 머신 · 머신',part:'유산소',tool:'머신',method:'시간'},
- {id:'catalog-4c68a9e9802b',name:'일립티컬 · 머신',part:'유산소',tool:'머신',method:'시간'},
-];
+/* v0.1.1: same seven-column geometry for weekday labels and dates */
+.month-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));position:relative;height:42px;align-items:center;padding:0}
+.month-nav>button{position:absolute;top:6px;z-index:2;width:28px;height:28px;background:var(--bg);border-radius:5px}.month-nav>button:first-child{left:2px}.month-nav>button:last-child{right:2px}
+.weekday-grid{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));width:100%;text-align:center;align-items:center;font-size:12px;letter-spacing:0}
+.weekday-grid span{min-width:0}
+.day-workout-item{display:flex;align-items:center;width:100%;padding:12px;text-align:left;gap:12px;min-height:72px}
+.day-workout-item>.workout-name{flex:1}.day-workout-item>svg{color:var(--accent)}
+.slot-tabs{position:fixed;bottom:calc(61px + env(safe-area-inset-bottom));height:49px;left:50%;transform:translateX(-50%);width:min(100%,540px);margin:0;background:var(--surface);z-index:8;border-top:1px solid var(--line);justify-content:space-around}
+.slot-tabs button{flex:1;padding:10px 5px}.slot-tabs button.active{border-top:0;border-bottom:3px solid var(--accent)}
+.screen:has(.slot-tabs){padding-bottom:calc(175px + env(safe-area-inset-bottom))}
+.screen:has(.slot-tabs) .floating{bottom:calc(123px + env(safe-area-inset-bottom))}
+.detail-screen{padding-bottom:calc(115px + env(safe-area-inset-bottom))}
+.detail-pager,.detail-nav{display:flex;justify-content:space-between;align-items:center;padding:9px 4px;gap:10px;color:var(--muted)}
+.detail-pager button,.detail-nav button{padding:10px;color:var(--accent)}.detail-pager span{font-size:13px}
+.detail-name{font-size:19px;margin:0}.detail-summary{font-weight:700;color:var(--accent);margin-top:12px}
+.detail-head,.detail-set{display:grid;grid-template-columns:39px minmax(0,1.2fr) minmax(0,0.8fr) minmax(0,1fr) 39px;gap:5px;align-items:center;margin:9px 0;text-align:center}
+.detail-head{color:var(--muted);font-size:10px}.detail-set input{width:100%;min-width:0;text-align:center;padding:10px 3px;font-size:13px}
+.detail-head.time-grid,.detail-set.time-grid{grid-template-columns:39px minmax(0,1fr) minmax(0,1fr) 39px}
+.detail-memo{display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}.detail-memo textarea{min-height:60px}
+.rest-timer{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(calc(100% - 24px),510px);z-index:12;background:var(--accent);color:#fff;border-radius:12px;box-shadow:0 6px 22px #0005;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;gap:12px}
+.rest-timer span{display:flex;gap:12px;align-items:center}.rest-timer b{font-variant-numeric:tabular-nums;font-size:18px}.rest-timer button{display:flex;gap:5px;align-items:center;border:1px solid #fff9;border-radius:6px;padding:7px}
+.rest-timer:has(+ .bottom-nav){}
 
-export const defaults:Database={days:{},exercises:[...initialExercises,...catalogExercises],routines:[],body:[],preferences:{theme:'dark',accent:'#338cff',weightUnit:'kg',rest:120,scale:100,weightStep:2.5,exerciseWeightSteps:{}},dashboard:[]};
-export const volume=(s:Session)=>s.workouts.reduce((total,w)=>total+w.sets.filter(x=>x.type==='N').reduce((acc,x)=>acc+x.weight*x.reps,0),0);
-export const setsCount=(s:Session)=>s.workouts.reduce((a,w)=>a+w.sets.filter(x=>x.type==='N').length,0);
-export const makeSet=(rest=120):SetRow=>({id:newId(),type:'N',weight:0,reps:8,rest,durationSeconds:0,done:false});
+/* Workout Grove original visual system */
+:root{--bg:#0d171b;--surface:#17262c;--surface2:#243840;--line:#31474f;--accent:#4ca8a2;--text:#edf5f3;--muted:#9eb2b3}
+.phone-frame{background:var(--bg)}
+.header{background:linear-gradient(110deg,#182a32,#123c40);border-bottom:none;border-radius:0 0 16px 16px}
+.month-title{letter-spacing:.3px}
+.calendar-screen{padding:9px 8px 95px}
+.month-nav{background:var(--surface);border-radius:12px 12px 0 0;border:0;margin-top:2px}
+.month-nav>button{background:var(--surface)}
+.calendar-grid{border:0;gap:4px;padding:4px;background:var(--surface);border-radius:0 0 13px 13px}
+.day-cell{border:1px solid var(--line);border-radius:9px;background:var(--bg);touch-action:none;user-select:none;overflow:hidden;height:clamp(67px,18vw,98px)}
+.day-cell.selected{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--bg))}
+.day-cell.drag-source{outline:2px dashed var(--accent)}.day-cell.drag-target{background:color-mix(in srgb,var(--accent) 38%,var(--bg));outline:2px solid var(--accent)}
+.date-summary{margin:13px 0;background:var(--surface);border-radius:16px}
+.drawer{background:var(--bg);border-radius:0 24px 24px 0;overflow:hidden}
+.drawer-header{background:linear-gradient(145deg,#244f54,#162a32);border:0;border-radius:0 0 22px 22px}
+.drawer>button{margin:4px 10px;width:calc(100% - 20px);border:0;border-radius:12px;background:var(--surface);padding:14px}
+.drawer>button:hover{background:var(--surface2)}
+.brand-mark{background:#154c51;border-radius:50%}
+.workout-card,.panel,.session-summary{border-radius:14px}
+.symbol-label{font-size:11px;font-weight:700;color:var(--accent);background:var(--surface2);border-radius:10px;padding:12px 5px;white-space:nowrap}
+.detail-screen{padding-bottom:calc(245px + env(safe-area-inset-bottom))}
+.detail-bottom{position:fixed;bottom:calc(61px + env(safe-area-inset-bottom));width:min(100%,540px);left:50%;transform:translateX(-50%);z-index:8;background:var(--bg);border-top:1px solid var(--line);box-shadow:0 -7px 18px #0003;padding:8px 12px}
+.inline-rest{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;border-radius:11px;background:var(--surface);font-size:12px}
+.inline-rest strong{font-size:22px;color:var(--accent);font-variant-numeric:tabular-nums}
+.inline-rest button{border:1px solid var(--line);padding:7px 10px;border-radius:8px}
+.detail-bottom .detail-nav{padding:0}.detail-bottom .detail-nav button{padding:10px 6px;font-size:12px}
+.weight-editor{min-width:0;display:flex;flex-direction:column;gap:3px}.weight-buttons{display:grid;grid-template-columns:1fr 1fr;gap:3px}.weight-buttons button{background:var(--surface2);border-radius:5px;padding:4px;color:var(--accent)}
+.weight-override-list{display:flex;flex-direction:column;gap:5px}.weight-override-row{display:flex;gap:8px;align-items:center;justify-content:space-between;background:var(--surface);padding:7px 10px;border-radius:8px;font-size:12px}.weight-override-row select{max-width:120px}
+.mode-picker{display:flex;gap:8px;margin-top:12px}.mode-picker button{padding:8px 16px;background:var(--surface2);border-radius:8px}.mode-picker button.chosen{background:var(--accent);color:#fff}
 
+/* v0.1.3: uniform compact set editor. The set number spans the title/value plus stepper rows. */
+.detail-set{align-items:stretch;grid-template-columns:39px minmax(0,1.2fr) minmax(0,.8fr) minmax(0,1fr) 39px;gap:5px}
+.detail-set .weight-editor,.detail-set .detail-value-editor{min-width:0;display:grid;grid-template-rows:32px 20px;gap:3px;align-self:stretch}
+.detail-set .weight-editor>input,.detail-set .detail-value-editor>input{height:32px;min-height:0;padding:4px 2px;font-size:12px;line-height:1.2;width:100%}
+.detail-set .weight-buttons,.detail-set .detail-stepper{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3px;height:20px;min-height:0}
+.detail-set .weight-buttons button,.detail-set .detail-stepper button{min-width:0;height:20px;min-height:0;padding:0;background:var(--surface2);border-radius:4px;color:var(--accent);line-height:20px;font-size:12px;touch-action:manipulation}
+.detail-set>.set-number{height:55px;min-height:55px;align-self:stretch;display:grid;place-items:center;padding:0}
+.detail-set>.completed,.detail-set>.uncompleted{align-self:center}
+.detail-set.time-grid .detail-value-editor{grid-row:auto}
+@media(max-width:365px){.detail-set{gap:3px;grid-template-columns:34px minmax(0,1.2fr) minmax(0,.8fr) minmax(0,1fr) 32px}.detail-set>.set-number{font-size:11px}}
+
+/* v0.1.4: original-app-inspired compact, collapsible set rows; no copyrighted artwork. */
+.detail-set-list{padding:8px 0 12px;overflow:hidden}
+.original-set{border-bottom:1px solid var(--line);padding:7px 8px 5px}
+.original-set:last-of-type{border-bottom:0}
+.original-set-line{display:grid;grid-template-columns:30px 55px minmax(0,1fr) minmax(0,.8fr) 25px 28px;align-items:center;gap:6px;min-height:53px}
+.original-done{width:27px;height:27px;border:2px solid var(--muted);border-radius:50%;display:grid;place-items:center;color:transparent;background:transparent;padding:0}
+.original-done.done{background:var(--accent);border-color:var(--accent);color:white}
+.original-number{height:37px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:14px}
+.original-value{color:var(--text);font-size:16px;text-align:center;white-space:nowrap}
+.original-set.is-done .original-value{opacity:.65}
+.original-rest{grid-column:2/5;grid-row:2;font-size:11px;color:var(--muted);padding-left:3px;padding-bottom:6px}
+.original-delete{grid-column:5;grid-row:1;color:var(--muted);display:grid;place-items:center;padding:0}
+.original-expand{grid-column:6;grid-row:1;color:var(--text);display:grid;place-items:center;padding:0}
+.original-set.is-expanded .original-expand svg{transform:rotate(180deg)}
+.original-edit{padding:12px 4px 14px 47px;display:grid;gap:8px}
+.original-field{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1fr) minmax(0,1.1fr);align-items:center;gap:7px;min-height:47px}
+.original-field label{font-size:13px;color:var(--text)}
+.original-field input{width:100%;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;text-align:center;font-size:19px;padding:5px 2px;height:35px;color:var(--text)}
+.original-buttons{display:grid;grid-template-columns:1fr 1fr;gap:4px;height:45px}
+.original-buttons button{background:var(--accent);color:white;border-radius:9px;padding:0 1px;font-size:13px;min-width:0}
+@media(max-width:375px){.original-set-line{grid-template-columns:25px 48px minmax(0,1fr) minmax(0,.75fr) 20px 22px;gap:3px}.original-edit{padding-left:32px}.original-buttons button{font-size:11px}}
+
+.catalog-tool-filters{display:flex;gap:7px;padding:8px 12px;overflow-x:auto;position:sticky;top:0;background:var(--bg);z-index:2}.catalog-tool-filters button{flex:0 0 auto;border:1px solid var(--border);border-radius:20px;padding:7px 11px;color:var(--text);background:transparent}.catalog-tool-filters button.on{background:var(--accent);color:#fff}.catalog-group{margin:10px 0;border:1px solid var(--border);border-radius:12px;overflow:hidden}.catalog-group-title{width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;text-align:left;background:var(--surface);color:var(--text)}.catalog-group-title small{margin-left:auto;color:var(--muted)}.catalog-group-title .rotated{transform:rotate(-90deg)}
+
+/* 0.1.7: date-specific workout management */
+.day-workout-row {overflow:hidden}
+.day-workout-row .day-workout-open {width:100%;border:0;border-radius:0;text-align:left;background:transparent;color:inherit}
+.day-workout-actions {display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:9px 12px 12px;border-top:1px solid var(--line,rgba(128,128,128,.22))}
+.day-workout-actions button {display:flex;align-items:center;justify-content:center;gap:5px;min-height:42px;border:1px solid rgba(128,128,128,.28);border-radius:11px;background:var(--card,rgba(128,128,128,.12));color:inherit;font-size:.85rem}
+.day-workout-actions button:disabled {opacity:.3}
+.day-workout-actions .delete-workout {color:#ef7777}
+
+/* 0.1.8 set classifications */
+.set-type-toggle{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.set-type-toggle span{font-size:12px;opacity:.8;margin-right:5px}
+.set-type-toggle button{border:1px solid rgba(125,125,125,.35);padding:8px 10px;border-radius:9px;background:transparent;color:inherit}
+.set-type-toggle button.chosen{border-color:var(--accent,#368af0);background:color-mix(in srgb,var(--accent,#368af0) 20%,transparent)}
+
+.auth-gate{min-height:100dvh;display:grid;place-items:center;padding:22px;background:var(--bg,#10131c);color:var(--text,#f5f6fb)}.auth-card{max-width:420px;width:100%;border:1px solid rgba(128,128,128,.35);border-radius:20px;padding:26px;background:var(--surface,#1b2230)}.auth-brand{display:flex;align-items:center;gap:12px}.auth-brand h1{margin:0;font-size:24px}.auth-card p{line-height:1.6}.auth-card button{margin-top:10px}.auth-card .error{color:#f87171}

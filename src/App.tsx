@@ -211,7 +211,33 @@ function App(){
    const targetSlot=slot;
    const routineTargetId=routineId;
    const toRoutine=choiceTarget==='routine';
-   const additions=selectedIds.map(id=>({id:newId(),exerciseId:id,sets:[makeSet(db.preferences.rest)]}));
+   // Reuse the most recent earlier workout for each exercise from the already-loaded
+   // account-scoped local database. No additional Firestore reads or writes occur.
+   // Current-day sessions are intentionally ignored to avoid copying unfinished sets.
+   const previousWorkout=(exerciseId:string):Workout|undefined=>{
+     const days=Object.keys(db.days).filter(day=>day<targetDate).sort().reverse();
+     for(const day of days){
+       const sessions=db.days[day]||[];
+       // Find the last occurrence on the latest matching date, across all sessions.
+       for(let sessionIndex=sessions.length-1;sessionIndex>=0;sessionIndex--){
+         const workouts=sessions[sessionIndex].workouts;
+         for(let i=workouts.length-1;i>=0;i--){
+           const workout=workouts[i];
+           if(workout.exerciseId===exerciseId&&workout.sets.length>0)return workout;
+         }
+       }
+     }
+     return undefined;
+   };
+   const additions:Workout[]=selectedIds.map(id=>{
+     // Templates retain their default-set behavior; history applies to daily records.
+     const prior=toRoutine?undefined:previousWorkout(id);
+     return {
+       id:newId(),exerciseId:id,
+       sets:prior?prior.sets.map(set=>({...set,id:newId(),done:false})):[makeSet(db.preferences.rest)],
+       ...(prior?.cardioMode?{cardioMode:prior.cardioMode}:{})
+     };
+   });
    if(toRoutine&&!db.routines.some(r=>r.id===routineTargetId)){
      window.alert('편집 중인 템플릿을 찾지 못했습니다.');return;
    }
@@ -290,4 +316,3 @@ function App(){
 }
 function MiniChart({values}:{values:number[]}){if(values.length===0)return <p className="muted">기록 없음</p>;const max=Math.max(...values),min=Math.min(...values),range=Math.max(1,max-min);const points=values.map((v,i)=>`${20+(i*(280/Math.max(1,values.length-1)))},${105-((v-min)/range)*80}`).join(' ');return <svg role="img" aria-label="기록 추이 그래프" viewBox="0 0 320 130" className="mini-chart"><line x1="10" y1="110" x2="310" y2="110" stroke="currentColor" opacity=".2"/><polyline points={points} stroke="var(--accent)" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>{values.map((v,i)=><circle key={i} cx={20+(i*(280/Math.max(1,values.length-1)))} cy={105-((v-min)/range)*80} r="3.5" fill="var(--accent)"/>)}</svg>}
 export default App;
-

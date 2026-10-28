@@ -1,7 +1,7 @@
-export type SetRow={id:string;type:'W'|'N';weight:number;reps:number;rest:number;durationSeconds?:number;done:boolean};
+export type SetRow={id:string;type:'W'|'N';weight:number;reps:number;rest:number;durationSeconds?:number;timerEndsAt?:number;timerRemainingSeconds?:number;done:boolean};
 export type Exercise={id:string;name:string;part:string;tool:string;method:string;custom?:boolean;favorite?:boolean};
 export type Workout={id:string;exerciseId:string;sets:SetRow[];note?:string;cardioMode?:'시간'|'횟수'};
-export type Session={id:string;title:string;startedAt?:string;duration:number;workouts:Workout[]};
+export type Session={id:string;title:string;startedAt?:string;finishedAt?:string;duration:number;workouts:Workout[]};
 export type Routine={id:string;name:string;color:string;workouts:Workout[]};
 export type BodyEntry={date:string;weight?:number;muscle?:number;fat?:number;memo?:string};
 export type Preferences={theme:'dark'|'light'|'system';accent:string;weightUnit:'kg'|'lb';rest:number;scale:number;weightStep?:number;exerciseWeightSteps?:Record<string,number>};
@@ -160,4 +160,3 @@ export const defaults:Database={days:{},exercises:[...initialExercises,...catalo
 export const volume=(s:Session)=>s.workouts.reduce((total,w)=>total+w.sets.filter(x=>x.type==='N').reduce((acc,x)=>acc+x.weight*x.reps,0),0);
 export const setsCount=(s:Session)=>s.workouts.reduce((a,w)=>a+w.sets.filter(x=>x.type==='N').length,0);
 export const makeSet=(rest=120):SetRow=>({id:newId(),type:'N',weight:0,reps:8,rest,durationSeconds:0,done:false});
-

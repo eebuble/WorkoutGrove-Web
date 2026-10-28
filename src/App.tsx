@@ -213,7 +213,49 @@ function App(){
   update(d=>{const sess=ensureSession(d);const item=sess.workouts.find(x=>x.id===wid);if(!item)return;item.sets[si].done=next;item.sets[si].timerEndsAt=undefined;item.sets[si].timerRemainingSeconds=undefined;if(finished&&sess.startedAt&&!sess.finishedAt){sess.finishedAt=new Date().toISOString();sess.duration=Math.max(0,Math.floor((Date.parse(sess.finishedAt)-Date.parse(sess.startedAt))/60000))}else if(!next&&sess.finishedAt)sess.finishedAt=undefined});
   if(next&&!finished){requestTimerAlerts();startRest(set.rest)}else setRestEnd(null)
  }
- useEffect(()=>{if(access!=='allowed'||!current)return;const now=Date.now();for(const workout of current.workouts){for(let i=0;i<workout.sets.length;i++){const row=workout.sets[i];if(row.timerEndsAt&&row.timerEndsAt<=now&&!row.done){const key=`${date}:${slot}:${row.id}:${row.timerEndsAt}`;if(cardioHandledRef.current.has(key))continue;cardioHandledRef.current.add(key);const finished=current.workouts.every(w=>w.sets.length>0&&w.sets.every((s,si)=>w.id===workout.id&&si===i?true:s.done));notifyTimer('유산소 운동 종료','설정한 운동 시간이 완료되었습니다.');update(d=>{const sess=ensureSession(d);const item=sess.workouts.find(w=>w.id===workout.id);if(!item)return;item.sets[i].done=true;item.sets[i].timerEndsAt=undefined;item.sets[i].timerRemainingSeconds=undefined;if(finished&&sess.startedAt&&!sess.finishedAt){sess.finishedAt=new Date().toISOString();sess.duration=Math.max(0,Math.floor((Date.parse(sess.finishedAt)-Date.parse(sess.startedAt))/60000))}});return}}}},[clockNow,access,date,slot,db]);
+ // Check active cardio timers across all dates and all three sessions, regardless of the visible tab.
+ // Use the scheduled deadline as the finish time, so a backgrounded tab doesn't inflate duration.
+ useEffect(()=>{
+  if(access!=='allowed')return;
+  const now=Date.now();
+  type Expired={day:string;sessionIndex:number;workoutId:string;setIndex:number;setId:string;endsAt:number;key:string};
+  const expired:Expired[]=[];
+  for(const [day,daySessions] of Object.entries(db.days)){
+   for(let sessionIndex=0;sessionIndex<daySessions.length;sessionIndex++){
+    const session=daySessions[sessionIndex];
+    for(const workout of session.workouts){
+     for(let setIndex=0;setIndex<workout.sets.length;setIndex++){
+      const row=workout.sets[setIndex];
+      const endsAt=row.timerEndsAt;
+      if(typeof endsAt!=='number'||endsAt>now||row.done)continue;
+      const key=`${day}:${session.id}:${row.id}:${endsAt}`;
+      if(cardioHandledRef.current.has(key))continue;
+      cardioHandledRef.current.add(key);
+      expired.push({day,sessionIndex,workoutId:workout.id,setIndex,setId:row.id,endsAt,key});
+     }
+    }
+   }
+  }
+  if(!expired.length)return;
+  update(data=>{
+   for(const entry of expired){
+    const session=data.days[entry.day]?.[entry.sessionIndex];
+    const item=session?.workouts.find(w=>w.id===entry.workoutId);
+    const set=item?.sets[entry.setIndex];
+    if(!session||!set||set.id!==entry.setId||set.done||set.timerEndsAt!==entry.endsAt)continue;
+    set.done=true;
+    set.timerEndsAt=undefined;
+    set.timerRemainingSeconds=undefined;
+    const finished=session.workouts.length>0&&session.workouts.every(w=>w.sets.length>0&&w.sets.every(row=>row.done));
+    if(finished&&session.startedAt&&!session.finishedAt){
+     const endMs=Math.max(Date.parse(session.startedAt),entry.endsAt);
+     session.finishedAt=new Date(endMs).toISOString();
+     session.duration=Math.max(0,Math.floor((endMs-Date.parse(session.startedAt))/60000));
+    }
+   }
+  });
+  for(const entry of expired)notifyTimer('유산소 운동 종료','설정한 운동 시간이 완료되었습니다.');
+ },[clockNow,access,db]);
 
  function copyDay(from:string,to:string){
    if(from===to)return;

@@ -254,7 +254,7 @@ function App(){
     }
    }
   });
-  for(const entry of expired)notifyTimer('유산소 운동 종료','설정한 운동 시간이 완료되었습니다.');
+  if(expired.length>0)notifyTimer('유산소 운동 종료','설정한 운동 시간이 완료되었습니다.');
  },[clockNow,access,db]);
 
  function copyDay(from:string,to:string){
